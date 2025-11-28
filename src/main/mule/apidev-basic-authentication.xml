@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:spring="http://www.mulesoft.org/schema/mule/spring" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/spring http://www.mulesoft.org/schema/mule/spring/current/mule-spring.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="2c06ec43-68d8-41f4-83b2-941350b8bfe3" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	
+	<spring:config name="spring-configuration" 
+	doc:name="spring-configuration" 
+	doc:id="2ad1bda0-e0ca-4856-9c03-9150d937991e"
+	 files="app-beans.xml" />
+	
+	<spring:security-manager>
+		<spring:delegate-security-provider name="memory-provider" delegate-ref="authencationmanager" />
+	</spring:security-manager>
+	
+	<flow name="apidev-basic-authenticationFlow" doc:id="67aabb90-a86f-4458-a7d3-27f70b32cbdd" >
+		<http:listener doc:name="Listener" doc:id="a41ac151-7679-43d2-92e4-c446ea9f6113" config-ref="HTTP_Listener_config" path="/enablebasicauthentication/*"/>
+		<http:basic-security-filter doc:name="Basic security filter" doc:id="8c69c6dc-9aea-4c64-b4c7-c02cc5ab3481" realm="mule">
+			<http:security-providers >
+				<http:security-provider value="memory-provider" />
+			</http:security-providers>
+		</http:basic-security-filter>
+		<ee:transform doc:name="Transform Message" doc:id="e5489e8e-17ce-47c5-afa8-f3116da7e136" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Status" : "Request Successfully Processed."
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
